@@ -1,7 +1,7 @@
 """Optional local performance benchmark in an isolated FalkorDB graph.
 
-It never changes the ContextPilot judging/demo graph. It creates 1,000 payment
-events plus 1,000 connected risk alerts in `contextpilot_benchmark`.
+It never changes the ContextPilot demo graph. It creates 1,000 payment events
+and 40 connected high-risk alerts in `contextpilot_benchmark`.
 """
 
 from time import perf_counter
