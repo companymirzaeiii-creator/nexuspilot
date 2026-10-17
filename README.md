@@ -1,8 +1,8 @@
-# ContextPilot — Graph Hacks three-track submission
+# nexuspilot — Graph Hacks three-track submission
 
 > A local, evidence-backed company-context agent built with **FalkorDB** and **Streamlit**.
 
-ContextPilot models a fictional retailer, **Northstar Commerce**, as a connected graph. It helps a team answer questions that ordinary tables struggle with: ownership, dependency risk, affected customers, supporting documents, and decisions that must persist for later work.
+nexuspilot models a fictional retailer, **Northstar Commerce**, as a connected graph. It helps a team answer questions that ordinary tables struggle with: ownership, dependency risk, affected customers, supporting documents, and decisions that must persist for later work.
 
 ## Judge verification — all three tracks
 
@@ -28,7 +28,7 @@ The app uses only deterministic synthetic data. No customer, company, or cloud d
 
 ## Why a graph?
 
-The answer to “What is blocking Mobile Checkout?” is not stored in one record. ContextPilot traverses connected evidence:
+The answer to “What is blocking Mobile Checkout?” is not stored in one record. nexuspilot traverses connected evidence:
 
 ```mermaid
 flowchart LR
@@ -59,7 +59,7 @@ Important relationships include `OWNS`, `LEADS`, `WORKS_ON`, `DEPENDS_ON`, `BLOC
 Prerequisites: Docker Desktop, Python, and a running FalkorDB container from `compose.yaml`.
 
 ```powershell
-cd C:\Users\compa\contextpilot
+cd C:\Users\compa\nexuspilot
 .\.venv\Scripts\Activate.ps1
 docker compose up -d
 python generate_company_data.py
@@ -75,33 +75,33 @@ Open the URL shown by Streamlit, normally `http://localhost:8501`.
 1. Create a GitHub repository and push this folder (instructions below).
 2. On the [Graph Hacks event page](https://www.wemakedevs.org/hackathons/falkordb), sign in, select the registered team, and use its submission panel before the deadline.
 3. Provide the repository URL, a short project description, and a demo video URL if the panel asks for them. The event page says a live deployment is preferred; a project without one needs complete local instructions and a working demo video.
-4. Enter ContextPilot for **Track 01, Track 02, and Track 03** if the form allows multi-track selection.
+4. Enter nexuspilot for **Track 01, Track 02, and Track 03** if the form allows multi-track selection.
 
 ### Push to GitHub
 
-Create an empty repository on GitHub named `contextpilot`, then run these commands in PowerShell. Replace `YOUR-USERNAME` with your GitHub username.
+Create an empty repository on GitHub named `nexuspilot`, then run these commands in PowerShell. Replace `YOUR-USERNAME` with your GitHub username.
 
 ```powershell
-cd C:\Users\compa\contextpilot
+cd C:\Users\compa\nexuspilot
 git init
 git add .
-git commit -m "Build ContextPilot Graph Hacks submission"
+git commit -m "Build nexuspilot Graph Hacks submission"
 git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/contextpilot.git
+git remote add origin https://github.com/YOUR-USERNAME/nexuspilot.git
 git push -u origin main
 ```
 
 After the push, your repository URL is:
 
 ```text
-https://github.com/YOUR-USERNAME/contextpilot
+https://github.com/YOUR-USERNAME/nexuspilot
 ```
 
 Paste that URL into the event submission panel if it asks for a repository. Do not commit `.venv/`, Docker volumes, or Streamlit secrets; `.gitignore` already excludes the first two sensitive/local categories.
 
 ## Viewing the FalkorDB graph
 
-Open **http://localhost:3000** while Docker Desktop and `docker compose up -d` are running. In FalkorDB Browser, select the `contextpilot` graph and run:
+Open **http://localhost:3000** while Docker Desktop and `docker compose up -d` are running. In FalkorDB Browser, select the `nexuspilot` graph and run:
 
 ```cypher
 MATCH path = (project:Project {id: 'project-mobile-checkout'})-[:DEPENDS_ON*1..2]->(system:System)<-[:BLOCKS]-(task:Task)
@@ -123,7 +123,7 @@ Run this only when you want to demonstrate local scale testing:
 python benchmark_scale.py
 ```
 
-It uses a separate `contextpilot_benchmark` graph and creates 1,000 payment events plus connected risk alerts. It never changes the `contextpilot` demonstration graph, so it is safe to run before or after a judge demo.
+It uses a separate `nexuspilot_benchmark` graph and creates 1,000 payment events plus connected risk alerts. It never changes the `nexuspilot` demonstration graph, so it is safe to run before or after a judge demo.
 
 ## Demo questions
 
@@ -140,7 +140,7 @@ Use **Record a decision** in the sidebar to persist a decision. Refresh or open 
 
 ## Track implementation
 
-| Track | Current status | Evidence in ContextPilot |
+| Track | Current status | Evidence in nexuspilot |
 | --- | --- | --- |
 | **Track 1 — Agents that act on connected data** | Complete local demo | The risk agent follows the incident/dependency graph and the triage action creates an assigned `WorkItem`; a persisted `AgentHandoff` records the action. |
 | **Track 2 — Agent memory and coordination** | Complete local demo | `Episode` nodes retain conversations, `Decision` nodes retain semantic knowledge, `Procedure` nodes represent the runbook, and two graph agents share handoff state inside `tenant-northstar`. |
@@ -158,7 +158,7 @@ Use **Record a decision** in the sidebar to persist a decision. Refresh or open 
 ## Repository layout
 
 ```text
-contextpilot/
+nexuspilot/
 ├── app.py                    # Streamlit chat UI and decision action
 ├── agent.py                  # Explainable, fixed-query local agent
 ├── graph_db.py               # Resilient FalkorDB access helpers
