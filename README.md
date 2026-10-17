@@ -1,10 +1,10 @@
-# nexuspilot — Graph Hacks three-track submission
+# NexusPilot — Explainable graph-native agents for company operations
 
 > A local, evidence-backed company-context agent built with **FalkorDB** and **Streamlit**.
 
-nexuspilot models a fictional retailer, **Northstar Commerce**, as a connected graph. It helps a team answer questions that ordinary tables struggle with: ownership, dependency risk, affected customers, supporting documents, and decisions that must persist for later work.
+NexusPilot models a fictional retailer, **Northstar Commerce**, as a connected graph. It helps teams answer questions that ordinary tables struggle with: ownership, dependency risk, customer impact, supporting evidence, and decisions that must persist across sessions.
 
-## Judge verification — all three tracks
+## Track coverage
 
 | Track | What to do in the app | Proof stored in FalkorDB |
 | --- | --- | --- |
@@ -12,7 +12,124 @@ nexuspilot models a fictional retailer, **Northstar Commerce**, as a connected g
 | **02 — Agent Memory and Coordination** | Ask any question, refresh the browser, then ask `Show recent memory`. Create a triage handoff and ask `Show open handoffs`. | Each question becomes an `Episode`; decisions, work items, and handoffs remain in the graph under `tenant-northstar`. |
 | **03 — Company Brain** | Ask `What is blocking the mobile checkout launch?` and expand evidence. | People, teams, projects, systems, docs, tickets, chats, customers, and incidents provide a sourced multi-hop answer. |
 
-All three flows run locally. No API key, cloud account, or paid model is required.
+All flows run locally. No API key, cloud account, or paid model is required.
+
+## Start here — for referees and first-time users
+
+No prior knowledge of FalkorDB or Python is required. Follow the setup guide for your operating system, then open the app and use one of the scenarios below.
+
+<details>
+<summary><strong>Windows setup — click to open</strong></summary>
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and open it. Wait until Docker says it is running.
+2. Install [Python 3](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads).
+3. Download this repository as a ZIP file from GitHub and extract it, or clone it with Git.
+4. Open the project folder in PowerShell. A beginner can do this by opening the folder in File Explorer, clicking the address bar, typing `powershell`, and pressing Enter.
+5. Copy and run these commands one at a time:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+docker compose up -d
+python generate_company_data.py
+python seed_graph.py
+python validate_graph.py
+streamlit run app.py
+```
+
+6. Open the address printed by Streamlit, normally `http://localhost:8501`.
+7. To see the graph visually, open `http://localhost:3000` in another browser tab.
+
+If PowerShell blocks activation, run this once in the same terminal, then repeat the activation command:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+</details>
+
+<details>
+<summary><strong>macOS setup — click to open</strong></summary>
+
+1. Install Docker Desktop for Mac, Python 3, and Git. Open Docker Desktop and wait until it is running.
+2. Download/extract this repository, then open **Terminal** in the project folder.
+3. Run these commands one at a time:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+docker compose up -d
+python generate_company_data.py
+python seed_graph.py
+python validate_graph.py
+streamlit run app.py
+```
+
+4. Open `http://localhost:8501` for NexusPilot and `http://localhost:3000` for FalkorDB Browser.
+
+</details>
+
+<details>
+<summary><strong>Linux setup — click to open</strong></summary>
+
+1. Install Docker Engine with the Docker Compose plugin, Python 3 with `venv`, and Git using your Linux distribution’s package manager. Ensure the Docker service is running.
+2. Download/extract this repository, then open a terminal in the project folder.
+3. Run these commands one at a time:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+docker compose up -d
+python generate_company_data.py
+python seed_graph.py
+python validate_graph.py
+streamlit run app.py
+```
+
+4. Open `http://localhost:8501` for NexusPilot and `http://localhost:3000` for FalkorDB Browser.
+
+If Docker reports a permission error, follow your distribution’s official Docker post-install instructions or run Docker through its supported desktop/runtime setup.
+
+</details>
+
+<details>
+<summary><strong>Try Track 1 — agent acts on connected data</strong></summary>
+
+1. In NexusPilot, ask: `Which customers are affected by incidents?`
+2. In the left sidebar, find **Track 1: triage an incident**.
+3. Choose **Tax calculation timeout**, choose an assignee, choose **P1**, and click **Create triage handoff**.
+4. Ask: `Show open handoffs`.
+
+Expected result: the graph-created work item appears with the Risk analyst, Delivery coordinator, incident, and assigned person. This proves the agent did more than answer—it used the graph to take an explainable action.
+
+</details>
+
+<details>
+<summary><strong>Try Track 2 — persistent memory and coordination</strong></summary>
+
+1. Ask: `What is blocking the mobile checkout launch?`
+2. Refresh the browser page, or close and reopen the app URL.
+3. Ask: `Show recent memory`.
+4. If you completed Track 1, ask: `Show open handoffs`.
+
+Expected result: the previous question is still available as an `Episode` in FalkorDB, and the handoff is shared state between the two agents. It remains after a browser refresh because it is graph memory, not temporary page memory.
+
+</details>
+
+<details>
+<summary><strong>Try Track 3 — company brain with sources</strong></summary>
+
+1. Ask: `What is blocking the mobile checkout launch?`
+2. Click **Evidence and graph path** below the answer.
+3. Open FalkorDB Browser at `http://localhost:3000` and select graph `contextpilot`.
+4. Run the graph query in the **Viewing the FalkorDB graph** section below.
+
+Expected result: the answer connects a blocked tax task, Payment Platform, Checkout API, and Mobile Checkout, with a ticket and chat message as evidence.
+
+</details>
 
 ## The scenario
 
@@ -28,7 +145,7 @@ The app uses only deterministic synthetic data. No customer, company, or cloud d
 
 ## Why a graph?
 
-The answer to “What is blocking Mobile Checkout?” is not stored in one record. nexuspilot traverses connected evidence:
+The answer to “What is blocking Mobile Checkout?” is not stored in one record. NexusPilot traverses connected evidence:
 
 ```mermaid
 flowchart LR
@@ -54,54 +171,9 @@ This produces an answer, the evidence backing it, and the graph path used.
 
 Important relationships include `OWNS`, `LEADS`, `WORKS_ON`, `DEPENDS_ON`, `BLOCKS`, `RELATES_TO`, `USES`, `AFFECTED_BY`, `MADE`, and `ABOUT`.
 
-## Quick start (Windows)
-
-Prerequisites: Docker Desktop, Python, and a running FalkorDB container from `compose.yaml`.
-
-```powershell
-cd C:\Users\compa\nexuspilot
-.\.venv\Scripts\Activate.ps1
-docker compose up -d
-python generate_company_data.py
-python seed_graph.py
-python validate_graph.py
-streamlit run app.py
-```
-
-Open the URL shown by Streamlit, normally `http://localhost:8501`.
-
-## Submission checklist
-
-1. Create a GitHub repository and push this folder (instructions below).
-2. On the [Graph Hacks event page](https://www.wemakedevs.org/hackathons/falkordb), sign in, select the registered team, and use its submission panel before the deadline.
-3. Provide the repository URL, a short project description, and a demo video URL if the panel asks for them. The event page says a live deployment is preferred; a project without one needs complete local instructions and a working demo video.
-4. Enter nexuspilot for **Track 01, Track 02, and Track 03** if the form allows multi-track selection.
-
-### Push to GitHub
-
-Create an empty repository on GitHub named `nexuspilot`, then run these commands in PowerShell. Replace `YOUR-USERNAME` with your GitHub username.
-
-```powershell
-cd C:\Users\compa\nexuspilot
-git init
-git add .
-git commit -m "Build nexuspilot Graph Hacks submission"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/nexuspilot.git
-git push -u origin main
-```
-
-After the push, your repository URL is:
-
-```text
-https://github.com/YOUR-USERNAME/nexuspilot
-```
-
-Paste that URL into the event submission panel if it asks for a repository. Do not commit `.venv/`, Docker volumes, or Streamlit secrets; `.gitignore` already excludes the first two sensitive/local categories.
-
 ## Viewing the FalkorDB graph
 
-Open **http://localhost:3000** while Docker Desktop and `docker compose up -d` are running. In FalkorDB Browser, select the `nexuspilot` graph and run:
+Open **http://localhost:3000** while Docker Desktop and `docker compose up -d` are running. In FalkorDB Browser, select the `contextpilot` graph and run:
 
 ```cypher
 MATCH path = (project:Project {id: 'project-mobile-checkout'})-[:DEPENDS_ON*1..2]->(system:System)<-[:BLOCKS]-(task:Task)
@@ -123,7 +195,7 @@ Run this only when you want to demonstrate local scale testing:
 python benchmark_scale.py
 ```
 
-It uses a separate `nexuspilot_benchmark` graph and creates 1,000 payment events plus connected risk alerts. It never changes the `nexuspilot` demonstration graph, so it is safe to run before or after a judge demo.
+It uses a separate `contextpilot_benchmark` graph and creates 1,000 payment events plus 40 high-risk alerts. It never changes the `contextpilot` demonstration graph, so it is safe to run before or after a demo.
 
 ## Demo questions
 
@@ -140,7 +212,7 @@ Use **Record a decision** in the sidebar to persist a decision. Refresh or open 
 
 ## Track implementation
 
-| Track | Current status | Evidence in nexuspilot |
+| Track | Current status | Evidence in NexusPilot |
 | --- | --- | --- |
 | **Track 1 — Agents that act on connected data** | Complete local demo | The risk agent follows the incident/dependency graph and the triage action creates an assigned `WorkItem`; a persisted `AgentHandoff` records the action. |
 | **Track 2 — Agent memory and coordination** | Complete local demo | `Episode` nodes retain conversations, `Decision` nodes retain semantic knowledge, `Procedure` nodes represent the runbook, and two graph agents share handoff state inside `tenant-northstar`. |
@@ -172,11 +244,12 @@ nexuspilot/
 
 ## Limits and next steps
 
-This is a complete local demonstration of each track. Production upgrades could include:
+This repository is a local demonstration of each track. Production deployments would add:
 
-1. Add a Track 1 incident triage action that assigns work after impact analysis.
-2. Add Track 2 memory per user/tenant and a second agent that consumes shared decisions.
-3. Ingest real exported documents/tickets only after removing sensitive content and adding access controls.
+1. Authentication and role-based access controls.
+2. Multiple isolated tenant graphs and tenant-specific data ingestion.
+3. Automated ingestion of approved documents, tickets, and chat exports.
+4. Monitoring, backups, and deployment configuration for the selected hosting environment.
 
 ## License
 

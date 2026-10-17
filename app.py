@@ -3,10 +3,10 @@ import streamlit as st
 from agent import answer, record_decision, record_episode, triage_incident
 from graph_db import rows
 
-st.set_page_config(page_title="ContextPilot", page_icon=":material/account_tree:", layout="wide")
+st.set_page_config(page_title="NexusPilot", page_icon=":material/account_tree:", layout="wide")
 st.session_state.setdefault("messages", [])
 
-st.title("ContextPilot")
+st.title("NexusPilot")
 st.caption("A local, evidence-backed company brain powered by FalkorDB.")
 
 @st.cache_data(ttl="15s", max_entries=1)
